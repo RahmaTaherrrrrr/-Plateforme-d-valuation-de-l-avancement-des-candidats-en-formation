@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulaire Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container my-4">
+    <h1 th:text="${admin.id} == null ? 'Ajouter un Admin' : 'Modifier un Admin'"></h1>
+    <form th:action="@{/admins/save}" th:object="${admin}" method="post">
+        <input type="hidden" th:field="*{id}" />
+
+        <div class="mb-3">
+            <label for="nom" class="form-label">Nom</label>
+            <input type="text" th:field="*{nom}" id="nom" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="prenom" class="form-label">Prénom</label>
+            <input type="text" th:field="*{prenom}" id="prenom" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" th:field="*{email}" id="email" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="telephone" class="form-label">Téléphone</label>
+            <input type="text" th:field="*{telephone}" id="telephone" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Mot de passe</label>
+            <input type="password" th:field="*{password}" id="password" class="form-control" required />
+        </div>
+
+        <!-- Champ role en lecture seule ou masqué -->
+        <input type="hidden" th:field="*{role}" />
+
+        <button type="submit" class="btn btn-success">Enregistrer</button>
+        <a href="/admins" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
