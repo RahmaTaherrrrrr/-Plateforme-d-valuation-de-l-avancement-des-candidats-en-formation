@@ -1,13 +1,15 @@
 package com.example.platforme.controllers;
 
 import com.example.platforme.dtos.LoginRequestDTO;
+import com.example.platforme.dtos.UtilisateurCreateDTO;
 import com.example.platforme.models.Role;
 import com.example.platforme.models.Utilisateur;
 import com.example.platforme.repositories.UtilisateurRepository;
-import com.example.platforme.services.CustomUserDetailsService;
 import com.example.platforme.services.JwtService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -51,23 +53,26 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("token", token));
     }
 
-    @PostMapping("/test-register")
-    public ResponseEntity<?> createTestUser() {
-        if (utilisateurRepository.findByEmail("test@demo.com").isPresent()) {
-            return ResponseEntity.badRequest().body("Utilisateur existe déjà !");
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody UtilisateurCreateDTO request) {
+        if (utilisateurRepository.findByEmail(request.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "L'email est déjà utilisé"));
         }
 
-        Utilisateur user = new Utilisateur();
-        user.setNom("Test");
-        user.setPrenom("User");
-        user.setEmail("test@demo.com");
-        user.setPassword(passwordEncoder.encode("123456"));
-        user.setRole(Role.CANDIDAT);
+        Utilisateur utilisateur = new Utilisateur();
+        utilisateur.setNom(request.getNom());
+        utilisateur.setPrenom(request.getPrenom());
+        utilisateur.setEmail(request.getEmail());
+        utilisateur.setTelephone(request.getTelephone());
+        utilisateur.setPassword(passwordEncoder.encode(request.getPassword()));
+        utilisateur.setRole(Role.valueOf(request.getRole())); // <-- set role obligatoire
 
-        utilisateurRepository.save(user);
-        return ResponseEntity.ok("Utilisateur 'test@demo.com' créé avec mot de passe '123456'");
+        utilisateurRepository.save(utilisateur);
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+        String token = jwtService.generateToken(userDetails);
+
+        return ResponseEntity.ok(Map.of("token", token));
     }
+
 }
-
-
-

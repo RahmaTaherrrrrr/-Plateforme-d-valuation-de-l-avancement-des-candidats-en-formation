@@ -3,12 +3,16 @@ package com.example.platforme.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
-public class Utilisateur {
+public class Utilisateur implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +27,6 @@ public class Utilisateur {
     private String prenom;
 
     @Email(message = "L'email doit être valide")
-
-
-
     @NotBlank(message = "L'email est requis")
     @Column(nullable = false, unique = true)
     private String email;
@@ -37,11 +38,43 @@ public class Utilisateur {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = true) // Rendre nullable pour ignorer les rôles
     private Role role;
 
     @OneToMany(mappedBy = "formateur", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Formation> formations = new ArrayList<>();
+
+    // Implémentation de UserDetails
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(); // Pas de rôle pour l’instant
+    }
+
+
+    @Override
+    public String getUsername() {
+        return email; // Utiliser l'email comme identifiant
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 
     // Constructeur vide
     public Utilisateur() {}

@@ -2,12 +2,15 @@ package com.example.platforme.mappers;
 
 import com.example.platforme.dtos.UtilisateurCreateDTO;
 import com.example.platforme.dtos.UtilisateurDTO;
-import com.example.platforme.models.Role;
 import com.example.platforme.models.Utilisateur;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        componentModel = "spring",
+        unmappedSourcePolicy = ReportingPolicy.IGNORE
+)
 public interface UtilisateurMapper {
 
     @Mapping(target = "id", ignore = true)
