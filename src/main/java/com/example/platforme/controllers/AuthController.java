@@ -65,7 +65,7 @@ public class AuthController {
         utilisateur.setEmail(request.getEmail());
         utilisateur.setTelephone(request.getTelephone());
         utilisateur.setPassword(passwordEncoder.encode(request.getPassword()));
-        utilisateur.setRole(Role.valueOf(request.getRole())); // <-- set role obligatoire
+
 
         utilisateurRepository.save(utilisateur);
 
