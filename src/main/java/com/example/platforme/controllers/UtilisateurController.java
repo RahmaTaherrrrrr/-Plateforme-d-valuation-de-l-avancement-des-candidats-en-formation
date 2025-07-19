@@ -1,4 +1,5 @@
 package com.example.platforme.controllers;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.example.platforme.dtos.UtilisateurCreateDTO;
 import com.example.platforme.dtos.UtilisateurDTO;
@@ -31,6 +32,7 @@ public class UtilisateurController {
             @ApiResponse(responseCode = "403", description = "Accès refusé (rôle ADMIN requis)"),
             @ApiResponse(responseCode = "409", description = "L'email existe déjà")
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'FORMATEUR','CANDIDAT')")
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public UtilisateurDTO create(@Valid @RequestBody UtilisateurCreateDTO utilisateurCreateDTO) {

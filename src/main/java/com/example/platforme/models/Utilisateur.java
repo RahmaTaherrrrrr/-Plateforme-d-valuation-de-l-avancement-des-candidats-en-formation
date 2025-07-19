@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
@@ -44,12 +45,13 @@ public class Utilisateur implements UserDetails {
     @OneToMany(mappedBy = "formateur", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Formation> formations = new ArrayList<>();
 
-    // Implémentation de UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(); // Pas de rôle pour l’instant
+        if (role == null) {
+            return Collections.emptyList();
+        }
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
-
 
     @Override
     public String getUsername() {

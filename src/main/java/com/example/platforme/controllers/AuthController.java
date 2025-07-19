@@ -52,9 +52,9 @@ public class AuthController {
         String token = jwtService.generateToken(user);
         return ResponseEntity.ok(Map.of("token", token));
     }
-
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UtilisateurCreateDTO request) {
+        System.out.println("Register request: " + request);
         if (utilisateurRepository.findByEmail(request.getEmail()).isPresent()) {
             return ResponseEntity.badRequest().body(Map.of("error", "L'email est déjà utilisé"));
         }
@@ -65,7 +65,12 @@ public class AuthController {
         utilisateur.setEmail(request.getEmail());
         utilisateur.setTelephone(request.getTelephone());
         utilisateur.setPassword(passwordEncoder.encode(request.getPassword()));
-
+        // Set default role to CANDIDAT if not provided
+        try {
+            utilisateur.setRole(request.getRole() != null ? Role.valueOf(request.getRole()) : Role.CANDIDAT);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Rôle invalide: " + request.getRole()));
+        }
 
         utilisateurRepository.save(utilisateur);
 
@@ -74,5 +79,4 @@ public class AuthController {
 
         return ResponseEntity.ok(Map.of("token", token));
     }
-
 }
