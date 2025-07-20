@@ -61,7 +61,7 @@ public class FormationController {
             @ApiResponse(responseCode = "403", description = "Accès refusé (rôle FORMATEUR requis)"),
             @ApiResponse(responseCode = "409", description = "Une formation avec ce titre existe déjà")
     })
-    @PreAuthorize("hasRole('FORMATEUR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FORMATEUR')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public FormationDTO create(@Valid @RequestBody FormationDTO formationDTO) {
@@ -77,7 +77,7 @@ public class FormationController {
             @ApiResponse(responseCode = "403", description = "Accès refusé (rôle FORMATEUR requis)"),
             @ApiResponse(responseCode = "404", description = "Formation non trouvée")
     })
-    @PreAuthorize("hasRole('FORMATEUR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FORMATEUR')")
     @PutMapping("/{id}")
     public FormationDTO update(@PathVariable Long id, @Valid @RequestBody FormationDTO formationDTO) {
         return formationService.update(id, formationDTO);
@@ -91,7 +91,7 @@ public class FormationController {
             @ApiResponse(responseCode = "403", description = "Accès refusé (rôle FORMATEUR requis)"),
             @ApiResponse(responseCode = "404", description = "Formation non trouvée")
     })
-    @PreAuthorize("hasRole('FORMATEUR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FORMATEUR')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {

@@ -65,7 +65,6 @@ public class AuthController {
         utilisateur.setEmail(request.getEmail());
         utilisateur.setTelephone(request.getTelephone());
         utilisateur.setPassword(passwordEncoder.encode(request.getPassword()));
-        // Set default role to CANDIDAT if not provided
         try {
             utilisateur.setRole(request.getRole() != null ? Role.valueOf(request.getRole()) : Role.CANDIDAT);
         } catch (IllegalArgumentException e) {
