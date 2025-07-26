@@ -44,13 +44,37 @@ public class UtilisateurServiceImpl {
             throw new IllegalArgumentException("Un utilisateur avec cet email existe déjà : " + utilisateurCreateDTO.getEmail());
         }
 
-        // Conversion et enregistrement
+        // Dans la méthode create() de UtilisateurServiceImpl.java
+
+// ...
         Utilisateur utilisateur = utilisateurMapper.toEntity(utilisateurCreateDTO);
         utilisateur.setPassword(passwordEncoder.encode(utilisateurCreateDTO.getPassword()));
 
-        utilisateur.setRole(Role.ADMIN); // ← on force le rôle ici
+// ======================= LOGIQUE DE RÔLE AVANCÉE =======================
+// On vérifie si un rôle a été passé dans la requête.
+        String roleDemandee = utilisateurCreateDTO.getRole();
+
+        if (roleDemandee != null && !roleDemandee.isBlank()) {
+            // Un rôle a été demandé. On essaie de l'assigner.
+            try {
+                // On convertit la chaîne de caractères en Enum. ex: "FORMATEUR" -> Role.FORMATEUR
+                utilisateur.setRole(Role.valueOf(roleDemandee.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                // Si le rôle demandé n'existe pas (ex: "SUPERMAN"), on assigne CANDIDAT par sécurité.
+                logger.warn("Rôle invalide demandé : '{}'. Assignation du rôle CANDIDAT par défaut.", roleDemandee);
+                utilisateur.setRole(Role.CANDIDAT);
+            }
+        } else {
+            // Aucun rôle n'a été demandé (cas de l'inscription publique standard).
+            // On assigne CANDIDAT par défaut.
+            utilisateur.setRole(Role.CANDIDAT);
+        }
+// =======================================================================
 
         Utilisateur savedUtilisateur = utilisateurRepository.save(utilisateur);
+// ...
+
+
         logger.info("Utilisateur créé avec succès par {} : {}",
                 SecurityContextHolder.getContext().getAuthentication() != null ?
                         SecurityContextHolder.getContext().getAuthentication().getName() : "ANONYME",

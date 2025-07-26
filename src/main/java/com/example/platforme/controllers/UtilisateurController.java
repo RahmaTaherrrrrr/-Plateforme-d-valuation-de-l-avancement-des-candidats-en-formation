@@ -32,7 +32,7 @@ public class UtilisateurController {
             @ApiResponse(responseCode = "403", description = "Accès refusé (rôle ADMIN requis)"),
             @ApiResponse(responseCode = "409", description = "L'email existe déjà")
     })
-    @PreAuthorize("hasAnyRole('ADMIN', 'FORMATEUR','CANDIDAT')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public UtilisateurDTO create(@Valid @RequestBody UtilisateurCreateDTO utilisateurCreateDTO) {
