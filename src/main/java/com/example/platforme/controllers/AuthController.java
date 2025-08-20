@@ -6,7 +6,7 @@ import com.example.platforme.dtos.UtilisateurCreateDTO;
 import com.example.platforme.dtos.UtilisateurDTO;
 import com.example.platforme.mappers.UtilisateurMapper;
 import com.example.platforme.models.Utilisateur;
-import com.example.platforme.services.JwtService; // <-- Assurez-vous que l'import est là
+import com.example.platforme.services.JwtService;
 import com.example.platforme.services.UserInfoDetails;
 import com.example.platforme.services.UtilisateurServiceImpl;
 import jakarta.validation.Valid;
@@ -27,19 +27,18 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final UtilisateurServiceImpl utilisateurService;
     private final UtilisateurMapper utilisateurMapper;
-    private final JwtService jwtService; // <-- **CORRECTION 1 : Déclarer la variable**
+    private final JwtService jwtService;
 
     public AuthController(AuthenticationManager authenticationManager,
                           UtilisateurServiceImpl utilisateurService,
                           UtilisateurMapper utilisateurMapper,
-                          JwtService jwtService) { // <-- **CORRECTION 2 : Ajouter au constructeur**
+                          JwtService jwtService) {
         this.authenticationManager = authenticationManager;
         this.utilisateurService = utilisateurService;
         this.utilisateurMapper = utilisateurMapper;
-        this.jwtService = jwtService; // <-- **CORRECTION 2 : Initialiser la variable**
+        this.jwtService = jwtService;
     }
 
-    // Dans la méthode login() de votre AuthController
 
     @PostMapping("/login")
     public ResponseEntity<JwtAuthenticationResponse> login(@Valid @RequestBody LoginRequestDTO request) {
@@ -49,12 +48,9 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // ================== CORRECTION DE LA LIGNE 57 ==================
-        // 1. On récupère le principal, qui est un UserInfoDetails
+
         UserInfoDetails userInfoDetails = (UserInfoDetails) authentication.getPrincipal();
-        // 2. On utilise notre nouveau getter pour extraire l'objet Utilisateur
         Utilisateur utilisateur = userInfoDetails.getUtilisateur();
-        // ===============================================================
 
         UtilisateurDTO utilisateurDTO = utilisateurMapper.toDTO(utilisateur);
         String token = jwtService.generateToken(userInfoDetails); // On peut passer userInfoDetails directement

@@ -25,7 +25,7 @@ public class UtilisateurController {
 
     @Operation(summary = "Créer un nouvel utilisateur",
             description = "Crée un utilisateur avec les informations fournies. Nécessite le rôle ADMIN.",
-            security = @SecurityRequirement(name = "bearerAuth"))  // <-- ici
+            security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Utilisateur créé avec succès"),
             @ApiResponse(responseCode = "400", description = "Données d'entrée invalides"),

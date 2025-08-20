@@ -1,3 +1,5 @@
+// Fichier : com/example/platforme/services/JwtService.java (Version Complète et Finale)
+
 package com.example.platforme.services;
 
 import com.example.platforme.models.Utilisateur;
@@ -6,7 +8,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +20,17 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
+    // La clé est générée une seule fois et ne change plus.
+    // Elle ne dépend plus du fichier application.properties.
     private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24 heures
 
-    @Autowired
-    private UtilisateurRepository utilisateurRepository;
+    private final UtilisateurRepository utilisateurRepository;
+
+    public JwtService(UtilisateurRepository utilisateurRepository) {
+        this.utilisateurRepository = utilisateurRepository;
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -44,21 +51,16 @@ public class JwtService {
 
     public String generateToken(UserDetails userDetails) {
         Utilisateur utilisateur = utilisateurRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable pour la génération du token"));
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", utilisateur.getRole().name());
+        claims.put("userId", utilisateur.getId());
 
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
-                .compact();
+        return buildToken(claims, userDetails);
     }
 
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())

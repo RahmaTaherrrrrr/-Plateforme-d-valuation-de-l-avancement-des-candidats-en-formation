@@ -58,7 +58,6 @@ public class EvaluationServiceImpl implements EvaluationService {
         Module module = moduleRepository.findById(dto.getModuleId())
                 .orElseThrow(() -> new EntityNotFoundException("Module non trouvé avec id " + dto.getModuleId()));
 
-        // Mise à jour des champs
         existing.setDateEvaluation(dto.getDateEvaluation());
         existing.setTypeEvaluation(dto.getTypeEvaluation());
         existing.setDuree(dto.getDuree());

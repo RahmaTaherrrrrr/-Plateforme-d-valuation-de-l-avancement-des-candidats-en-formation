@@ -39,40 +39,30 @@ public class UtilisateurServiceImpl {
             throw new IllegalArgumentException("Données invalides : " + violations);
         }
 
-        // Vérification de l'unicité de l'email
         if (utilisateurRepository.findByEmail(utilisateurCreateDTO.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Un utilisateur avec cet email existe déjà : " + utilisateurCreateDTO.getEmail());
         }
 
-        // Dans la méthode create() de UtilisateurServiceImpl.java
 
-// ...
         Utilisateur utilisateur = utilisateurMapper.toEntity(utilisateurCreateDTO);
         utilisateur.setPassword(passwordEncoder.encode(utilisateurCreateDTO.getPassword()));
 
-// ======================= LOGIQUE DE RÔLE AVANCÉE =======================
-// On vérifie si un rôle a été passé dans la requête.
+
         String roleDemandee = utilisateurCreateDTO.getRole();
 
         if (roleDemandee != null && !roleDemandee.isBlank()) {
-            // Un rôle a été demandé. On essaie de l'assigner.
             try {
-                // On convertit la chaîne de caractères en Enum. ex: "FORMATEUR" -> Role.FORMATEUR
                 utilisateur.setRole(Role.valueOf(roleDemandee.toUpperCase()));
             } catch (IllegalArgumentException e) {
-                // Si le rôle demandé n'existe pas (ex: "SUPERMAN"), on assigne CANDIDAT par sécurité.
                 logger.warn("Rôle invalide demandé : '{}'. Assignation du rôle CANDIDAT par défaut.", roleDemandee);
                 utilisateur.setRole(Role.CANDIDAT);
             }
         } else {
-            // Aucun rôle n'a été demandé (cas de l'inscription publique standard).
-            // On assigne CANDIDAT par défaut.
+
             utilisateur.setRole(Role.CANDIDAT);
         }
-// =======================================================================
 
         Utilisateur savedUtilisateur = utilisateurRepository.save(utilisateur);
-// ...
 
 
         logger.info("Utilisateur créé avec succès par {} : {}",
