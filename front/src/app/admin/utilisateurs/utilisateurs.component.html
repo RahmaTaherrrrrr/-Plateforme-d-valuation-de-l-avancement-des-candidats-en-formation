@@ -1,0 +1,258 @@
+
+  <div class="utilisateurs-container">
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="page-title">
+            <i class="bi bi-people me-3"></i>
+            Gestion des Utilisateurs
+          </h1>
+          <p class="page-subtitle">Gérer les administrateurs, formateurs et candidats</p>
+        </div>
+        <button class="btn btn-primary" (click)="openModal()">
+          <i class="bi bi-person-plus me-2"></i>
+          Ajouter Utilisateur
+        </button>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="search-box">
+              <i class="bi bi-search"></i>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Rechercher par nom, prénom ou email..."
+                [(ngModel)]="searchTerm"
+                (input)="filterUtilisateurs()"
+              >
+            </div>
+          </div>
+          <div class="col-md-3">
+            <select
+              class="form-select"
+              [(ngModel)]="selectedRole"
+              (change)="filterUtilisateurs()"
+            >
+              <option value="">Tous les rôles</option>
+              <option *ngFor="let r of roles" [value]="r">
+                {{ getRoleDisplayName(r) }}
+              </option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-secondary" (click)="loadUtilisateurs()">
+                <i class="bi bi-arrow-clockwise me-1"></i>
+                Actualiser
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-3">Chargement des utilisateurs...</p>
+    </div>
+
+    <!-- Users Table -->
+    <div *ngIf="!loading" class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-table me-2"></i>
+          Liste des Utilisateurs ({{ filteredUtilisateurs.length }})
+        </h5>
+      </div>
+      <div class="card-body p-0">
+        <div *ngIf="filteredUtilisateurs.length === 0" class="text-center py-5">
+          <i class="bi bi-inbox display-4 text-muted"></i>
+          <p class="mt-3 text-muted">Aucun utilisateur trouvé</p>
+        </div>
+        
+        <div *ngIf="filteredUtilisateurs.length > 0" class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Nom Complet</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Rôle</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let utilisateur of filteredUtilisateurs" class="user-row">
+                
+                <td>
+                  <div class="user-name">
+                    <strong>{{ utilisateur.prenom }} {{ utilisateur.nom }}</strong>
+                  </div>
+                </td>
+                <td>
+                  <span class="user-email">{{ utilisateur.email }}</span>
+                </td>
+                <td>
+                  <span class="user-phone">{{ utilisateur.telephone || '-' }}</span>
+                </td>
+                <td>
+                  <span class="badge {{ getRoleBadgeClass(utilisateur.role) }}">
+                    {{ getRoleDisplayName(utilisateur.role) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button
+                      class="btn btn-sm btn-outline-primary me-2"
+                      (click)="openModal(utilisateur)"
+                      title="Modifier"
+                    >
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="deleteUtilisateur(utilisateur)"
+                      title="Supprimer"
+                    >
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi" [class.bi-person-plus]="!editMode" [class.bi-pencil]="editMode" class="me-2"></i>
+            {{ editMode ? 'Modifier Utilisateur' : 'Ajouter Utilisateur' }}
+          </h5>
+          <button type="button" class="btn-close" (click)="closeModal()"></button>
+        </div>
+        <form [formGroup]="utilisateurForm" (ngSubmit)="onSubmit()">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="nom" class="form-label">Nom *</label>
+                <input
+                  type="text"
+                  id="nom"
+                  class="form-control"
+                  formControlName="nom"
+                  [class.is-invalid]="nom?.invalid && nom?.touched"
+                >
+                <div *ngIf="nom?.invalid && nom?.touched" class="invalid-feedback">
+                  <div *ngIf="nom?.errors?.['required']">Le nom est requis</div>
+                  <div *ngIf="nom?.errors?.['minlength']">Le nom doit contenir au moins 2 caractères</div>
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="prenom" class="form-label">Prénom *</label>
+                <input
+                  type="text"
+                  id="prenom"
+                  class="form-control"
+                  formControlName="prenom"
+                  [class.is-invalid]="prenom?.invalid && prenom?.touched"
+                >
+                <div *ngIf="prenom?.invalid && prenom?.touched" class="invalid-feedback">
+                  <div *ngIf="prenom?.errors?.['required']">Le prénom est requis</div>
+                  <div *ngIf="prenom?.errors?.['minlength']">Le prénom doit contenir au moins 2 caractères</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email *</label>
+              <input
+                type="email"
+                id="email"
+                class="form-control"
+                formControlName="email"
+                [class.is-invalid]="email?.invalid && email?.touched"
+              >
+              <div *ngIf="email?.invalid && email?.touched" class="invalid-feedback">
+                <div *ngIf="email?.errors?.['required']">L'email est requis</div>
+                <div *ngIf="email?.errors?.['email']">Format d'email invalide</div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="telephone" class="form-label">Téléphone</label>
+              <input
+                type="tel"
+                id="telephone"
+                class="form-control"
+                formControlName="telephone"
+              >
+            </div>
+
+            <div class="mb-3">
+              <label for="role" class="form-label">Rôle *</label>
+              <select
+                id="role"
+                class="form-select"
+                formControlName="role"
+                [class.is-invalid]="role?.invalid && role?.touched"
+              >
+                <option value="">Sélectionnez un rôle</option>
+                <option *ngFor="let r of roles" [value]="r">
+                  {{ getRoleDisplayName(r) }}
+                </option>
+              </select>
+              <div *ngIf="role?.invalid && role?.touched" class="invalid-feedback">
+                <div *ngIf="role?.errors?.['required']">Le rôle est requis</div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">
+                Mot de passe {{ editMode ? '(laisser vide pour ne pas modifier)' : '*' }}
+              </label>
+              <input
+                type="password"
+                id="password"
+                class="form-control"
+                formControlName="password"
+                [class.is-invalid]="password?.invalid && password?.touched"
+              >
+              <div *ngIf="password?.invalid && password?.touched" class="invalid-feedback">
+                <div *ngIf="password?.errors?.['required']">Le mot de passe est requis</div>
+                <div *ngIf="password?.errors?.['minlength']">Le mot de passe doit contenir au moins 6 caractères</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">
+              Annuler
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="utilisateurForm.invalid">
+              <i class="bi" [class.bi-check]="editMode" [class.bi-plus]="!editMode" class="me-2"></i>
+              {{ editMode ? 'Modifier' : 'Ajouter' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showModal" class="modal-backdrop fade show" (click)="closeModal()"></div>
+
+

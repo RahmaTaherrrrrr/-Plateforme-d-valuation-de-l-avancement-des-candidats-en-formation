@@ -1,0 +1,87 @@
+<div class="layout-container" [class.sidebar-collapsed]="sidebarCollapsed">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo" [class.collapsed]="sidebarCollapsed">
+        <i class="bi bi-mortarboard-fill"></i>
+        <span *ngIf="!sidebarCollapsed">Plateforme</span>
+      </div>
+      <button class="sidebar-toggle" (click)="toggleSidebar()">
+        <i class="bi" [class.bi-chevron-left]="!sidebarCollapsed" [class.bi-chevron-right]="sidebarCollapsed"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-menu">
+      <ul class="nav-list">
+        <li *ngFor="let item of getMenuItems()" class="nav-item">
+          <a 
+            [routerLink]="item.route" 
+            class="nav-link"
+            [class.active]="isActiveRoute(item.route)"
+            [title]="sidebarCollapsed ? item.label : ''"
+          >
+            <i class="{{ item.icon }}"></i>
+            <span *ngIf="!sidebarCollapsed">{{ item.label }}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="mobile-menu-toggle d-md-none" (click)="toggleSidebar()">
+          <i class="bi bi-list"></i>
+        </button>
+        <h1 class="page-title">{{ getRoleDisplayName() }}</h1>
+      </div>
+
+      <div class="header-right">
+        <!-- Notifications -->
+        <div class="notification-icon">
+          <i class="bi bi-bell"></i>
+          <span class="notification-badge">3</span>
+        </div>
+
+        <!-- User Profile Dropdown -->
+        <div class="user-profile" (click)="toggleDropdown()">
+      
+          <div class="user-info d-none d-md-block">
+            <span class="user-name">{{ currentUser?.prenom }} {{ currentUser?.nom }}</span>
+            <span class="user-role badge bg-{{ getRoleColor() }}">{{ getRoleDisplayName() }}</span>
+          </div>
+          <i class="bi bi-chevron-down dropdown-arrow"></i>
+
+          <!-- Dropdown Menu -->
+          <div class="dropdown-menu" [class.show]="dropdownOpen">
+            <a class="dropdown-item" [routerLink]="'/' + currentUser?.role?.toLowerCase() + '/profil'">
+              <i class="bi bi-person-circle me-2"></i>
+              Mon Profil
+            </a>
+            <a class="dropdown-item" href="#">
+              <i class="bi bi-gear me-2"></i>
+              Paramètres
+            </a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item text-danger" (click)="logout()">
+              <i class="bi bi-box-arrow-right me-2"></i>
+              Déconnexion
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="page-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
+
+<!-- Mobile Overlay -->
+<div class="mobile-overlay" [class.show]="!sidebarCollapsed" (click)="toggleSidebar()"></div>
+

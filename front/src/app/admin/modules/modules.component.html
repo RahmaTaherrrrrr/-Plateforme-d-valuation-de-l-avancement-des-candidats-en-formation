@@ -1,0 +1,117 @@
+<!-- On utilise une structure simple avec un conteneur Bootstrap -->
+<div class="container mt-4">
+  
+  <!-- Titre de la page -->
+  <h2>
+    <i class="bi bi-collection-play-fill"></i> 
+    Gestion des Modules
+  </h2>
+
+  <!-- Formulaire d'ajout/modification -->
+  <h3 class="mt-4">
+    <i class="bi {{ isEditing ? 'bi-pencil-square' : 'bi-plus-circle-fill' }}"></i>
+    {{ isEditing ? 'Modifier le Module' : 'Ajouter un nouveau Module' }}
+  </h3>
+
+  <form [formGroup]="moduleForm" (ngSubmit)="onSubmit()">
+    <!-- Champ Titre -->
+    <div class="form-group mb-2">
+      <label for="titre">Titre du Module</label>
+      <input id="titre" type="text" class="form-control" formControlName="titre" placeholder="Ex: Introduction à Java">
+      <div *ngIf="submitted && moduleForm.get('titre')?.invalid" class="text-danger small mt-1">
+        Le titre est requis et ne doit pas dépasser 100 caractères.
+      </div>
+    </div>
+
+    <!-- Champ Durée -->
+    <div class="form-group mb-2">
+      <label for="duree">Durée (en heures)</label>
+      <input id="duree" type="number" class="form-control" formControlName="duree" placeholder="Ex: 10" min="1">
+      <div *ngIf="submitted && moduleForm.get('duree')?.invalid" class="text-danger small mt-1">
+        La durée est requise et doit être un nombre positif.
+      </div>
+    </div>
+
+    <!-- Champ Formation -->
+    <div class="form-group mb-2">
+      <label for="formation">Formation Associée</label>
+      <select id="formation" class="form-control" formControlName="formationId">
+        <option [ngValue]="null" disabled>Sélectionnez une formation</option>
+        <option *ngFor="let formation of formations" [ngValue]="formation.id">
+          {{ formation.titre }}
+        </option>
+      </select>
+      <div *ngIf="submitted && moduleForm.get('formationId')?.invalid" class="text-danger small mt-1">
+        Veuillez lier ce module à une formation.
+      </div>
+    </div>
+
+    <!-- Champ Description -->
+    <div class="form-group mb-3">
+      <label for="description">Description</label>
+      <textarea id="description" class="form-control" formControlName="description" rows="3" placeholder="Contenu et objectifs du module"></textarea>
+      <div *ngIf="submitted && moduleForm.get('description')?.invalid" class="text-danger small mt-1">
+        La description ne doit pas dépasser 500 caractères.
+      </div>
+    </div>
+
+    <!-- Boutons d'action -->
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-success" [disabled]="isLoading">
+        <span *ngIf="!isLoading">{{ isEditing ? 'Mettre à jour' : 'Ajouter le Module' }}</span>
+        <span *ngIf="isLoading" class="spinner-border spinner-border-sm"></span>
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="resetForm()" *ngIf="isEditing">
+        Annuler
+      </button>
+    </div>
+  </form>
+
+  <!-- Séparateur -->
+  <hr class="my-4">
+
+  <!-- Tableau de la liste des modules -->
+  <h3 class="mt-4"><i class="bi bi-list-ul"></i> Liste des Modules</h3>
+
+  <!-- État de chargement -->
+  <div *ngIf="isLoading && modules.length === 0" class="text-center mt-3">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2">Chargement des modules...</p>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="errorMessage" class="alert alert-danger mt-3">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Tableau des modules -->
+  <table class="table table-bordered mt-3" *ngIf="!isLoading || modules.length > 0">
+    <thead>
+      <tr>
+        <th>Titre du Module</th>
+        <th>Durée (heures)</th>
+        <th>Formation Associée</th>
+        <th style="width: 120px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let module of modules">
+        <td><strong>{{ module.titre }}</strong></td>
+        <td>{{ module.duree }}h</td>
+        <td>{{ module.formation?.titre || 'Non assignée' }}</td>
+        <td>
+          <button class="btn btn-primary btn-sm me-2" (click)="editModule(module)" title="Modifier">
+            <i class="bi bi-pencil-fill"></i>
+          </button>
+          <button class="btn btn-danger btn-sm" (click)="deleteModule(module.id!)" title="Supprimer">
+            <i class="bi bi-trash-fill"></i>
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="modules.length === 0 && !errorMessage">
+        <td colspan="4" class="text-center">Aucun module trouvé.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>

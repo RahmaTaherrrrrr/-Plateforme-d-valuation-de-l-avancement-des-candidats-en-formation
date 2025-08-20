@@ -1,0 +1,117 @@
+<div class="container mt-4">
+  <h2>
+    <i class="bi bi-mortarboard-fill"></i>
+    Gestion des Formations
+  </h2>
+
+  <!-- Affichage des états de chargement et d'erreur -->
+  <div *ngIf="isLoading" class="text-center mt-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2">Chargement des données...</p>
+  </div>
+  <div *ngIf="errorMessage && !isLoading" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <!-- Le formulaire ne s'affiche que si le chargement est terminé -->
+  <div *ngIf="!isLoading">
+    <h3 class="mt-4">
+      <i class="bi {{ isEditing ? 'bi-pencil-square' : 'bi-plus-circle-fill' }}"></i>
+      {{ isEditing ? 'Modifier la Formation' : 'Ajouter une nouvelle Formation' }}
+    </h3>
+
+    <form [formGroup]="formationForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Titre -->
+      <div class="mb-3">
+        <label for="titre" class="form-label">Titre de la Formation</label>
+        <input type="text" id="titre" formControlName="titre" class="form-control" placeholder="Ex: Développeur Web Full-Stack" />
+        <div *ngIf="formationForm.get('titre')?.invalid && formationForm.get('titre')?.touched" class="text-danger small mt-1">
+          Le titre est requis.
+        </div>
+      </div>
+      
+      <!-- Description -->
+      <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <textarea id="description" formControlName="description" class="form-control" rows="3" placeholder="Objectifs, public cible, prérequis..."></textarea>
+      </div>
+      
+      <!-- Formateur -->
+      <div class="mb-3">
+        <label for="formateur" class="form-label">Formateur</label>
+        <select id="formateur" formControlName="formateurId" class="form-select">
+          <option [ngValue]="null" disabled>-- Choisir un formateur --</option>
+          <option *ngFor="let formateur of formateurs" [value]="formateur.id">
+            {{ formateur.nom }} {{ formateur.prenom }}
+          </option>
+        </select>
+        <div *ngIf="formationForm.get('formateurId')?.invalid && formationForm.get('formateurId')?.touched" class="text-danger small mt-1">
+          Veuillez choisir un formateur.
+        </div>
+      </div>
+
+      <!-- Modules -->
+      <div class="mb-3">
+        <label for="moduleIds" class="form-label">Modules à inclure (maintenir Ctrl/Cmd pour sélectionner plusieurs)</label>
+        <select id="moduleIds" formControlName="moduleIds" multiple class="form-select" size="5">
+          <option *ngFor="let module of tousLesModules" [value]="module.id">{{ module.titre }}</option>
+        </select>
+      </div>
+      
+   
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="dateDebut" class="form-label">Date de début</label>
+          <input type="date" id="dateDebut" formControlName="dateDebut" class="form-control" />
+          <div *ngIf="formationForm.get('dateDebut')?.touched && formationForm.get('dateDebut')?.hasError('required')" class="text-danger small mt-1">
+            La date de début est requise.
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label for="dateFin" class="form-label">Date de fin</label>
+          <input type="date" id="dateFin" formControlName="dateFin" class="form-control" />
+          <div *ngIf="formationForm.get('dateFin')?.touched && formationForm.get('dateFin')?.hasError('required')" class="text-danger small mt-1">
+            La date de fin est requise.
+          </div>
+        </div>
+      </div>
+     
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-success" [disabled]="formationForm.invalid || isLoading">
+          <span *ngIf="!isLoading">{{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}</span>
+          <span *ngIf="isLoading" class="spinner-border spinner-border-sm"></span>
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="resetForm()">Annuler</button>
+      </div>
+    </form>
+
+    <hr class="my-5">
+
+    <!-- Tableau de la liste -->
+    <h3 class="mt-4"><i class="bi bi-list-ul"></i> Liste des Formations</h3>
+    <table class="table table-bordered mt-3">
+      <thead>
+        <tr>
+          <th>Titre</th>
+          <th>Formateur</th>
+          <th>Dates</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let formation of formations">
+          <td><strong>{{ formation.titre }}</strong></td>
+          <td>{{ formation.formateur?.nom || 'N/A' }} {{ formation.formateur?.prenom || '' }}</td>
+          <td>{{ formation.dateDebut | date: 'dd/MM/yyyy' }} au {{ formation.dateFin | date: 'dd/MM/yyyy' }}</td>
+
+        <td style="width: 120px;">
+            <button class="btn btn-primary btn-sm me-2" (click)="editFormation(formation)" title="Modifier"><i class="bi bi-pencil-fill"></i></button>
+            <button class="btn btn-danger btn-sm" (click)="deleteFormation(formation.id)" title="Supprimer"><i class="bi bi-trash-fill"></i></button>
+          </td>
+        </tr>
+        <tr *ngIf="formations.length === 0">
+          <td colspan="5" class="text-center">Aucune formation trouvée.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

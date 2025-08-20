@@ -1,0 +1,150 @@
+
+  <div class="dashboard-container">
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-3">Chargement des données...</p>
+    </div>
+
+    <div *ngIf="!loading" class="dashboard-content fade-in">
+      <div class="page-header mb-4">
+        <h1 class="page-title">
+          <i class="bi bi-speedometer2 me-3"></i>
+          Dashboard Administrateur
+        </h1>
+        <p class="page-subtitle">Vue d'ensemble de la plateforme d'évaluation</p>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-lg-2 col-md-4 col-sm-6 mb-3" *ngFor="let stat of stats">
+          <div class="stat-card stat-card-{{ stat.color }}">
+            <div class="stat-icon">
+              <i class="{{ stat.icon }}"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-number">{{ stat.value }}</h3>
+              <p class="stat-title">{{ stat.title }}</p>
+              <div class="stat-change" [class]="'text-' + (stat.changeType === 'increase' ? 'success' : 'danger')">
+                <i class="bi" [class.bi-arrow-up]="stat.changeType === 'increase'" [class.bi-arrow-down]="stat.changeType === 'decrease'"></i>
+                {{ stat.change }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mb-4">
+       
+
+
+      <div class="row">
+        <div class="col-lg-6 mb-4">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="bi bi-people me-2"></i>
+                Utilisateurs Récents
+              </h5>
+            </div>
+            <div class="card-body">
+              <div *ngIf="recentUsers.length === 0" class="text-center text-muted py-4">
+                <i class="bi bi-inbox display-4"></i>
+                <p class="mt-2">Aucun utilisateur récent</p>
+              </div>
+              <div *ngFor="let user of recentUsers" class="user-item">
+              
+                <div class="user-info">
+                  <h6 class="user-name">{{ user.prenom }} {{ user.nom }}</h6>
+                  <p class="user-email">{{ user.email }}</p>
+                </div>
+                <div class="user-role">
+                  <span class="badge {{ getRoleBadgeClass(user.role) }}">
+                    {{ getRoleDisplayName(user.role) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="bi bi-book me-2"></i>
+                Formations Récentes
+              </h5>
+            </div>
+            <div class="card-body">
+              <div *ngIf="recentFormations.length === 0" class="text-center text-muted py-4">
+                <i class="bi bi-inbox display-4"></i>
+                <p class="mt-2">Aucune formation récente</p>
+              </div>
+              <div *ngFor="let formation of recentFormations" class="formation-item">
+                <div class="formation-icon">
+                  <i class="bi bi-book"></i>
+                </div>
+                <div class="formation-info">
+                  <h6 class="formation-title">{{ formation.titre }}</h6>
+                  <p class="formation-description">{{ formation.description }}</p>
+                  <div class="formation-dates">
+                    <small class="text-muted">
+                      <i class="bi bi-calendar me-1"></i>
+                      {{ formatDate(formation.dateDebut) }} - {{ formatDate(formation.dateFin) }}
+                    </small>
+                  </div>
+                </div>
+                <div class="formation-status">
+                  <span class="badge bg-primary">Active</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">
+                <i class="bi bi-lightning me-2"></i>
+                Actions Rapides
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-lg-3 col-md-6 mb-3">
+                  <a routerLink="/admin/utilisateurs" class="quick-action-card">
+                    <i class="bi bi-person-plus"></i>
+                    <span>Ajouter Utilisateur</span>
+                  </a>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                  <a routerLink="/admin/formations" class="quick-action-card">
+                    <i class="bi bi-plus-circle"></i>
+                    <span>Créer Formation</span>
+                  </a>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                  <a routerLink="/admin/modules" class="quick-action-card">
+                    <i class="bi bi-collection-play"></i>
+                    <span>Gérer Modules</span>
+                  </a>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                  <a routerLink="/admin/evaluations" class="quick-action-card">
+                    <i class="bi bi-clipboard-check"></i>
+                    <span>Voir Évaluations</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+

@@ -1,0 +1,196 @@
+<div class="register-container">
+  <div class="register-card">
+    <div class="register-header">
+      <h2 class="text-center mb-4">
+        <i class="bi bi-person-plus-fill me-2"></i>
+        Créer un compte
+      </h2>
+      <p class="text-center text-muted">Rejoignez la plateforme d'évaluation</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+      <!-- Alerte de succès -->
+      <div *ngIf="success" class="alert alert-success" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        Compte créé avec succès ! Redirection vers la page de connexion...
+      </div>
+
+      <!-- Alerte d'erreur -->
+      <div *ngIf="error" class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        {{ error }}
+      </div>
+
+      <div class="row">
+        <!-- Nom -->
+        <div class="col-md-6 mb-3">
+          <label for="nom" class="form-label">
+            <i class="bi bi-person me-2"></i>Nom *
+          </label>
+          <input
+            type="text"
+            id="nom"
+            class="form-control"
+            formControlName="nom"
+            placeholder="Votre nom"
+            [class.is-invalid]="nom?.invalid && nom?.touched"
+          >
+          <div *ngIf="nom?.invalid && nom?.touched" class="invalid-feedback">
+            <div *ngIf="nom?.errors?.['required']">Le nom est requis</div>
+            <div *ngIf="nom?.errors?.['minlength']">Le nom doit contenir au moins 2 caractères</div>
+          </div>
+        </div>
+
+        <!-- Prénom -->
+        <div class="col-md-6 mb-3">
+          <label for="prenom" class="form-label">
+            <i class="bi bi-person me-2"></i>Prénom *
+          </label>
+          <input
+            type="text"
+            id="prenom"
+            class="form-control"
+            formControlName="prenom"
+            placeholder="Votre prénom"
+            [class.is-invalid]="prenom?.invalid && prenom?.touched"
+          >
+          <div *ngIf="prenom?.invalid && prenom?.touched" class="invalid-feedback">
+            <div *ngIf="prenom?.errors?.['required']">Le prénom est requis</div>
+            <div *ngIf="prenom?.errors?.['minlength']">Le prénom doit contenir au moins 2 caractères</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="mb-3">
+        <label for="email" class="form-label">
+          <i class="bi bi-envelope me-2"></i>Email *
+        </label>
+        <input
+          type="email"
+          id="email"
+          class="form-control"
+          formControlName="email"
+          placeholder="votre.email@exemple.com"
+          [class.is-invalid]="email?.invalid && email?.touched"
+        >
+        <div *ngIf="email?.invalid && email?.touched" class="invalid-feedback">
+          <div *ngIf="email?.errors?.['required']">L'email est requis</div>
+          <div *ngIf="email?.errors?.['email']">Format d'email invalide</div>
+        </div>
+      </div>
+
+      <!-- Téléphone -->
+      <div class="mb-3">
+        <label for="telephone" class="form-label">
+          <i class="bi bi-telephone me-2"></i>Téléphone
+        </label>
+        <input
+          type="tel"
+          id="telephone"
+          class="form-control"
+          formControlName="telephone"
+          placeholder="Votre numéro de téléphone (optionnel)"
+        >
+      </div>
+
+      <!-- Rôle -->
+      <div class="mb-3">
+        <label for="role" class="form-label">
+          <i class="bi bi-person-badge me-2"></i>Type de compte *
+        </label>
+        <select
+          id="role"
+          class="form-select"
+          formControlName="role"
+          [class.is-invalid]="role?.invalid && role?.touched"
+        >
+          <option value="">Sélectionnez votre rôle</option>
+          <option *ngFor="let r of roles" [value]="r">
+            {{ getRoleDisplayName(r) }}
+          </option>
+        </select>
+        <div *ngIf="role?.invalid && role?.touched" class="invalid-feedback">
+          <div *ngIf="role?.errors?.['required']">Le rôle est requis</div>
+        </div>
+      </div>
+
+      <!-- Rôles disponibles -->
+      <div class="roles-preview mb-4">
+        <div class="row">
+          <div class="col-md-4" *ngFor="let r of roles">
+            <div class="role-card" [class.selected]="role?.value === r">
+              <i class="{{ getRoleIcon(r) }}"></i>
+              <strong>{{ getRoleDisplayName(r) }}</strong>
+              <small *ngIf="r === 'ADMIN'">Gestion complète</small>
+              <small *ngIf="r === 'FORMATEUR'">Créer des formations</small>
+              <small *ngIf="r === 'CANDIDAT'">Suivre des formations</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Mot de passe -->
+        <div class="col-md-6 mb-3">
+          <label for="password" class="form-label">
+            <i class="bi bi-lock me-2"></i>Mot de passe *
+          </label>
+          <input
+            type="password"
+            id="password"
+            class="form-control"
+            formControlName="password"
+            placeholder="Minimum 6 caractères"
+            [class.is-invalid]="password?.invalid && password?.touched"
+          >
+          <div *ngIf="password?.invalid && password?.touched" class="invalid-feedback">
+            <div *ngIf="password?.errors?.['required']">Le mot de passe est requis</div>
+            <div *ngIf="password?.errors?.['minlength']">Le mot de passe doit contenir au moins 6 caractères</div>
+          </div>
+        </div>
+
+        <!-- Confirmation mot de passe -->
+        <div class="col-md-6 mb-4">
+          <label for="confirmPassword" class="form-label">
+            <i class="bi bi-lock-fill me-2"></i>Confirmer *
+          </label>
+          <input
+            type="password"
+            id="confirmPassword"
+            class="form-control"
+            formControlName="confirmPassword"
+            placeholder="Répétez le mot de passe"
+            [class.is-invalid]="confirmPassword?.invalid && confirmPassword?.touched"
+          >
+          <div *ngIf="confirmPassword?.invalid && confirmPassword?.touched" class="invalid-feedback">
+            <div *ngIf="confirmPassword?.errors?.['required']">La confirmation est requise</div>
+            <div *ngIf="confirmPassword?.errors?.['passwordMismatch']">Les mots de passe ne correspondent pas</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bouton d'inscription -->
+      <button
+        type="submit"
+        class="btn btn-primary w-100 mb-3"
+        [disabled]="registerForm.invalid || loading"
+      >
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+        <i *ngIf="!loading" class="bi bi-person-plus me-2"></i>
+        {{ loading ? 'Création en cours...' : 'Créer mon compte' }}
+      </button>
+
+      <!-- Lien vers la connexion -->
+      <div class="text-center">
+        <p class="mb-0">
+          Déjà un compte ?
+          <a routerLink="/login" class="text-decoration-none">
+            <strong>Se connecter</strong>
+          </a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>
+

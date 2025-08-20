@@ -1,0 +1,114 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h2 class="text-center mb-4">
+        <i class="bi bi-mortarboard-fill me-2"></i>
+        Plateforme d'Évaluation
+      </h2>
+      <p class="text-center text-muted">Connectez-vous à votre compte</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <!-- Alerte d'erreur -->
+      <div *ngIf="error" class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        {{ error }}
+      </div>
+
+      <!-- Champ Email -->
+      <div class="mb-3">
+        <label for="email" class="form-label">
+          <i class="bi bi-envelope me-2"></i>Email
+        </label>
+        <input
+          type="email"
+          id="email"
+          class="form-control"
+          formControlName="email"
+          placeholder="Entrez votre email"
+          [class.is-invalid]="email?.invalid && email?.touched"
+        >
+        <div *ngIf="email?.invalid && email?.touched" class="invalid-feedback">
+          <div *ngIf="email?.errors?.['required']">L'email est requis</div>
+          <div *ngIf="email?.errors?.['email']">Format d'email invalide</div>
+        </div>
+      </div>
+
+      <!-- Champ Mot de passe -->
+      <div class="mb-4">
+        <label for="password" class="form-label">
+          <i class="bi bi-lock me-2"></i>Mot de passe
+        </label>
+        <input
+          type="password"
+          id="password"
+          class="form-control"
+          formControlName="password"
+          placeholder="Entrez votre mot de passe"
+          [class.is-invalid]="password?.invalid && password?.touched"
+        >
+        <div *ngIf="password?.invalid && password?.touched" class="invalid-feedback">
+          <div *ngIf="password?.errors?.['required']">Le mot de passe est requis</div>
+          <div *ngIf="password?.errors?.['minlength']">Le mot de passe doit contenir au moins 6 caractères</div>
+        </div>
+      </div>
+
+      <!-- Bouton de connexion -->
+      <button
+        type="submit"
+        class="btn btn-primary w-100 mb-3"
+        [disabled]="loginForm.invalid || loading"
+      >
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+        <i *ngIf="!loading" class="bi bi-box-arrow-in-right me-2"></i>
+        {{ loading ? 'Connexion...' : 'Se connecter' }}
+      </button>
+
+      <!-- Lien vers l'inscription -->
+      <div class="text-center">
+        <p class="mb-0">
+          Pas encore de compte ?
+          <a routerLink="/register" class="text-decoration-none">
+            <strong>Créer un compte</strong>
+          </a>
+        </p>
+      </div>
+    </form>
+  </div>
+
+  <!-- Informations sur les rôles -->
+  <div class="roles-info mt-4">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">
+          <i class="bi bi-info-circle me-2"></i>
+          Types de comptes disponibles
+        </h6>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="role-item">
+              <i class="bi bi-shield-check text-danger"></i>
+              <strong>Administrateur</strong>
+              <small>Gestion complète de la plateforme</small>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="role-item">
+              <i class="bi bi-person-workspace text-warning"></i>
+              <strong>Formateur</strong>
+              <small>Création et gestion des formations</small>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="role-item">
+              <i class="bi bi-person-check text-success"></i>
+              <strong>Candidat</strong>
+              <small>Participation aux formations</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
